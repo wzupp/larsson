@@ -97,12 +97,11 @@ $result = mysqli_query($mysqli, "SELECT `id`, `name`,`description`, `price`,`img
             <li>
                 <a href="#">Контакты</a>
             </li>
-            <form action="ajax.php" method ="POST" id= "formCart">
+            
             
             <li>
-                <button type="submit" >Корзина</a>
+                <a href="ajax.php" onclick="sendAllProducts()">Корзина</a>
             </li>
-            </form>
         </ul>
 
         <div class="header__phone">
@@ -223,33 +222,54 @@ $result = mysqli_query($mysqli, "SELECT `id`, `name`,`description`, `price`,`img
                     $row = mysqli_fetch_array($result);
                     if ($row == true ){
                 ?>        
-        <div class="card">
+        <div class="card" >
             <span class="card__sale">Sale</span>
 
             <div class="card__img">
                 <img src="<?php echo $row['img'] ?>" alt="">
             </div>
 
-            <div class="card_content">
+            <div class="card_content" >
+            
+                <input type="hidden" name="product_id" value="<?= $row['id'] ?>">
                 <h3 class="card__title"><?php echo $row['name'] ?></h3>
                 <p class="card__desc"><?php echo $row['description'] ?></p>
                 <p class="card__price"><?php $formatted_price = number_format($row['price'], 0, ',', ' ');  echo $formatted_price;?>
                     <span> руб</span>
                 </p>
             </div>
-            <button class="card_button" onclick="addToCart(<?= $row['id'] ?>)" >Добавить в корзину </button>
+            <button class="card_button_<?= $row['id']?> " data-id="<?= $row['id'] ?>">Добавить в корзину </button>
             
             
             
                 <script>
 
-                function addToCart(id) {
-                    
-                    $('#formCart').append('<input type="hidden" name="product_id[]" value =\''+id+'\'>');
-                    
-                    alert('Товар добавлен')
+                
+                    var productsArray = [];   
+
+                    $(".card_button_<?=$row['id']?>").click(function(){
+
+                    var parent = $(this).parent();
+                    var productId = parent.find('input[name="product_id"]').val();
+
+                    productsArray.push(productId);
+
+                    alert(parent.find('input').val()+' Товар <?php echo $row['name']?> добавлен в корзину');
+                });
+
+
+                function sendAllProducts() {
+                    $.ajax({
+                        url: 'ajax.php',
+                        type: 'POST',
+                        data: { productsArray: productsArray },
+                        dataType: 'json',
+                        success: function(data) {
+                        }
+                    });
 
                     }
+
 
                 </script>
         </div>
@@ -259,18 +279,7 @@ $result = mysqli_query($mysqli, "SELECT `id`, `name`,`description`, `price`,`img
         }
         
         ?>
-        
-        <div class="d-none" id="precart" type ="hidden">
-                
-                
-                
-            
-            
-        </div>
-        
-        
-        
-        
+     
         </div>
     
     </div>
@@ -317,4 +326,6 @@ $result = mysqli_query($mysqli, "SELECT `id`, `name`,`description`, `price`,`img
         </footer>
        
 </body>
+
+
 
