@@ -1,39 +1,22 @@
-
 <?php
 session_start();
 include('connection.php');
+error_reporting(E_ALL & ~E_WARNING);
 
-if (!empty($_POST)){
-                                                
-    $idCard = $_POST['product_id'];
+$totalPrice = "";
+
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST)) {
+
+    $_SESSION['id'] = $_POST['productsArray'];
+}
+    $idCard = $_SESSION['id'];
     
     $id_arrayCard= implode(",",$idCard); 
     
     $idCountsCard = array_count_values($idCard);
     
     $resultCard= mysqli_query($mysqli,"SELECT * FROM product WHERE id IN ($id_arrayCard)");
-    
-   
-
-    while ( $row = mysqli_fetch_array($resultCard)){
-
-        $idProd = $row['id'];
-
-        $nameProd = $row['name'];
-
-        $priceProd = $row['price'];
-
-        $quantityProd = $idCountsCard[$row['id']];
-
-        $image = $row['img'];
-
-        $resProd = mysqli_query($mysqli,"INSERT INTO `card`(`id`, `name`, `price`, `quant`, `img`) VALUES ('$idProd','$nameProd','$priceProd','$quantityProd','$image') ");
-
-
-    }
-
-
-
 
 ?>
 <!DOCTYPE html>
@@ -76,26 +59,14 @@ if (!empty($_POST)){
                                     </thead>
                                     <tbody id ="in-check">
                                        <?php  
-                                        
-                                        // if (!empty($_POST)){
-                                                
-                                        //     $id = $_POST['product_id'];
                                             
-                                        //     $id_array= implode(",",$id); 
-                                            
-                                        //     $idCounts = array_count_values($id);
-                                            
-                                        //     $result= mysqli_query($mysqli,"SELECT * FROM product WHERE id IN ($id_array)");
-
-                                            $prodFromCard = mysqli_query($mysqli,"SELECT * FROM `card` ");
-                                            
-                                            $num = mysqli_num_rows($prodFromCard);
+                                            $num = mysqli_num_rows($resultCard);
 
                                             if ($num > 0){
 
                                                 $totalPrice = "";
                                                 
-                                                while($item = mysqli_fetch_array($prodFromCard)){
+                                                while($item = mysqli_fetch_array($resultCard)){
                                                     
                                                     $price = $item['price'];
                                                     
@@ -131,11 +102,11 @@ if (!empty($_POST)){
                                         </tr>
                                         
                                     </tbody>
-                                    <?php }}   }    else {echo "Корзина пуста";}  ?>
+                                    <?php }}       else {echo "Корзина пуста <br>";}  ?>
                                   
                                     <tfoot>
                                         <tr>
-                                            <td colspan="7"><b> Total Amount :: <?php echo $totalPrice?> </b> </td>
+                                            <td colspan="7"><b> Total Amount :: <?php if ($totalPrice == true){ echo $totalPrice;} else { echo '- ';}?> </b> </td>
                                         </tr>
                                     </tfoot>
                                 </table>
